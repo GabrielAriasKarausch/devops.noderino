@@ -4,7 +4,7 @@ const port = process.env.PORT || 3000;
 const number = process.env.NUMBER || 0;
 
 app.get(desiredPath, (req, res) => {
-  res.send(`<h1>Helloo from ${desiredPath} number ${number}!</h1>`);
+  res.send(`<h1>HellOoo from ${desiredPath} number ${number}!</h1>`);
 });
 
 app.get("/healthcheck", (req, res) => {
