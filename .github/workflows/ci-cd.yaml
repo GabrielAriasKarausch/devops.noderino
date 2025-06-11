@@ -24,12 +24,13 @@ jobs:
     - name: Run health-check test
       run: |
         npm start &  # inicia la app en segundo plano
-        sleep 5      # espera a que el servidor esté listo
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/healthcheck || echo 000)
+        sleep 5
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80/healthcheck || echo 000)
         if [ "$STATUS" -ne 200 ]; then
           echo "Health check failed: status $STATUS"
           exit 1
         fi
+
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
