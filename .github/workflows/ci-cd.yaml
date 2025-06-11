@@ -25,7 +25,8 @@ jobs:
       run: |
         npm start &  # inicia la app en segundo plano
         sleep 5
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80/healthcheck || echo 000)
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/healthcheck || echo 000)
+
         if [ "$STATUS" -ne 200 ]; then
           echo "Health check failed: status $STATUS"
           exit 1
