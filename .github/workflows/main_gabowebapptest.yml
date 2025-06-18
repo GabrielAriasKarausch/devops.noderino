@@ -1,8 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
-
-name: Build and deploy Python app to Azure Web App - gabowebapptest
+name: Build and deploy Node.js app to Azure Web App - gabowebapptest
 
 on:
   push:
@@ -11,71 +7,28 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read #This is required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v4
 
-      - name: Set up Python version
-        uses: actions/setup-python@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          python-version: '3.10'
+          node-version: '18'  # O ajusta a la versión que uses en noderino
 
-      - name: Create and start virtual environment
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-      
       - name: Install dependencies
-        run: pip install -r requirements.txt
-        
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+        run: npm install
 
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+      - name: Optional - Build step
+        run: npm run build || echo "No build step defined"
 
-      - name: Upload artifact for deployment jobs
-        uses: actions/upload-artifact@v4
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
         with:
-          name: python-app
-          path: |
-            release.zip
-            !venv/
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: python-app
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
-
-      
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D85A0C0BAE4D4D98AB2B4EE6754A9987 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_FFA7A67C9BB2450CBC966B22EB23ACDB }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4E07B715B0C04BBABF2C2F378C589CA8 }}
-
-      - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
-        with:
-          app-name: 'gabowebapptest'
+          app-name: 'gabowebapptest'  # <-- Nombre exacto de tu Web App en Azure
           slot-name: 'Production'
-          
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          package: .
